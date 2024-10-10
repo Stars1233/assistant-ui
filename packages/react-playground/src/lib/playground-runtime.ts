@@ -8,7 +8,6 @@ import {
   fromLanguageModelTools,
   ModelConfig,
   ModelConfigProvider,
-  ReactThreadRuntime,
   TextContentPart,
   ThreadAssistantContentPart,
   ThreadUserContentPart,
@@ -18,21 +17,23 @@ import {
   ThreadAssistantMessage,
   ChatModelAdapter,
   Unsubscribe,
-  AssistantRuntime,
   ChatModelRunResult,
   CoreMessage,
   fromCoreMessage,
   INTERNAL,
+  ThreadSuggestion,
 } from "@assistant-ui/react";
 import { LanguageModelV1FunctionTool } from "@ai-sdk/provider";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { create } from "zustand";
 
 const {
-  BaseAssistantRuntime,
+  BaseAssistantRuntimeCore,
   ProxyConfigProvider,
   generateId,
-  ThreadRuntimeComposer,
+  DefaultThreadComposerRuntimeCore,
+  AssistantRuntimeImpl,
+  ThreadRuntimeImpl,
 } = INTERNAL;
 
 const makeModelConfigStore = () =>
@@ -46,10 +47,7 @@ const makeModelConfigStore = () =>
     config: {},
   }));
 
-class PlaygroundRuntime
-  extends BaseAssistantRuntime<PlaygroundThreadRuntime>
-  implements AssistantRuntime
-{
+class PlaygroundRuntimeCore extends BaseAssistantRuntimeCore<PlaygroundThreadRuntimeCore> {
   private readonly _proxyConfigProvider: InstanceType<
     typeof ProxyConfigProvider
   >;
@@ -57,7 +55,7 @@ class PlaygroundRuntime
   constructor(initialMessages: CoreMessage[], adapter: ChatModelAdapter) {
     const cp = new ProxyConfigProvider();
     super(
-      new PlaygroundThreadRuntime(
+      new PlaygroundThreadRuntimeCore(
         cp,
         fromCoreMessages(initialMessages),
         adapter,
@@ -66,15 +64,19 @@ class PlaygroundRuntime
     this._proxyConfigProvider = cp;
   }
 
-  public switchToThread(threadId: string | null) {
-    if (threadId)
-      throw new Error("PlaygroundRuntime does not support switching threads");
-
-    this.thread = new PlaygroundThreadRuntime(
+  public switchToNewThread() {
+    this.thread = new PlaygroundThreadRuntimeCore(
       this._proxyConfigProvider,
       [],
       this.thread.adapter,
     );
+  }
+
+  public switchToThread(threadId: string | null) {
+    if (threadId !== null)
+      throw new Error("PlaygroundRuntime does not support switching threads");
+
+    this.switchToNewThread();
   }
 
   public override registerModelConfigProvider(
@@ -92,11 +94,12 @@ const CAPABILITIES = Object.freeze({
   unstable_copy: true,
   speak: false,
   attachments: false,
+  feedback: false,
 });
 
 const EMPTY_BRANCHES: readonly string[] = Object.freeze([]);
 
-export class PlaygroundThreadRuntime implements ReactThreadRuntime {
+export class PlaygroundThreadRuntimeCore implements INTERNAL.ThreadRuntimeCore {
   private _subscriptions = new Set<() => void>();
 
   private abortController: AbortController | null = null;
@@ -106,13 +109,21 @@ export class PlaygroundThreadRuntime implements ReactThreadRuntime {
   public readonly threadId = generateId();
   public readonly isDisabled = false;
   public readonly capabilities = CAPABILITIES;
+  public readonly extras = undefined;
+  public readonly suggestions: readonly ThreadSuggestion[] = [];
+  public readonly speech = null;
 
   private configProvider = new ProxyConfigProvider();
 
-  public readonly composer = new ThreadRuntimeComposer(
-    this,
-    this.notifySubscribers.bind(this),
-  );
+  public readonly composer = new DefaultThreadComposerRuntimeCore(this);
+
+  public getEditComposer() {
+    return undefined;
+  }
+
+  public beginEdit() {
+    throw new Error("Playground does not support edit mode.");
+  }
 
   constructor(
     configProvider: ModelConfigProvider,
@@ -123,6 +134,10 @@ export class PlaygroundThreadRuntime implements ReactThreadRuntime {
     this.configProvider.registerModelConfigProvider({
       getModelConfig: () => this.useModelConfig.getState(),
     });
+  }
+
+  public getModelConfig() {
+    return this.configProvider.getModelConfig();
   }
 
   public setRequestData({
@@ -260,6 +275,14 @@ export class PlaygroundThreadRuntime implements ReactThreadRuntime {
 
   public speak(): never {
     throw new Error("PlaygroundRuntime does not support speaking.");
+  }
+
+  public stopSpeaking(): never {
+    throw new Error("PlaygroundRuntime does not support speaking.");
+  }
+
+  public submitFeedback(): never {
+    throw new Error("PlaygroundRuntime does not support feedback.");
   }
 
   public deleteMessage(messageId: string) {
@@ -479,22 +502,46 @@ export class PlaygroundThreadRuntime implements ReactThreadRuntime {
       }),
     );
   }
+
+  public import() {
+    throw new Error("Playground does not support importing messages.");
+  }
+
+  public export(): never {
+    throw new Error("Playground does not support exporting messages.");
+  }
+}
+
+class PlaygroundThreadRuntime extends ThreadRuntimeImpl {
+  constructor(private binding: INTERNAL.ThreadRuntimeCoreBinding) {
+    super(binding);
+  }
+
+  public setRequestData(options: EdgeRuntimeRequestOptions) {
+    return (
+      this.binding.getState() as PlaygroundThreadRuntimeCore
+    ).setRequestData(options);
+  }
 }
 
 export const usePlaygroundRuntime = ({
   initialMessages,
   maxToolRoundtrips,
+  maxSteps,
   ...runtimeOptions
 }: EdgeRuntimeOptions & {
   initialMessages: CoreMessage[];
 }) => {
   const [runtime] = useState(
     () =>
-      new PlaygroundRuntime(
+      new PlaygroundRuntimeCore(
         initialMessages,
         new EdgeChatAdapter(runtimeOptions),
       ),
   );
 
-  return runtime;
+  return useMemo(
+    () => new AssistantRuntimeImpl(runtime, PlaygroundThreadRuntime),
+    [runtime],
+  );
 };

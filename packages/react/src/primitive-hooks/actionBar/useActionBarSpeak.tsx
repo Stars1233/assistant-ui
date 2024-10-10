@@ -1,28 +1,19 @@
 import { useCallback } from "react";
-import { useMessageContext } from "../../context/react/MessageContext";
-import { useThreadContext } from "../../context/react/ThreadContext";
-import { useCombinedStore } from "../../utils/combined/useCombinedStore";
+
+import { useMessage, useMessageRuntime } from "../../context";
 
 export const useActionBarSpeak = () => {
-  const { useThreadActions } = useThreadContext();
-  const { useMessage, useEditComposer, useMessageUtils } = useMessageContext();
-
-  const hasSpeakableContent = useCombinedStore(
-    [useMessage, useEditComposer],
-    ({ message }, c) => {
-      return (
-        !c.isEditing &&
-        (message.role !== "assistant" || message.status.type !== "running") &&
-        message.content.some((c) => c.type === "text" && c.text.length > 0)
-      );
-    },
-  );
-
+  const messageRunime = useMessageRuntime();
   const callback = useCallback(async () => {
-    const { message } = useMessage.getState();
-    const utt = useThreadActions.getState().speak(message.id);
-    useMessageUtils.getState().addUtterance(utt);
-  }, [useThreadActions, useMessage, useMessageUtils]);
+    messageRunime.speak();
+  }, [messageRunime]);
+
+  const hasSpeakableContent = useMessage((m) => {
+    return (
+      (m.role !== "assistant" || m.status.type !== "running") &&
+      m.content.some((c) => c.type === "text" && c.text.length > 0)
+    );
+  });
 
   if (!hasSpeakableContent) return null;
   return callback;

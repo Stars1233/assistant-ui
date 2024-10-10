@@ -68,7 +68,7 @@ export default function HomePage() {
 
       <div className="mb-8 flex justify-center gap-2">
         <Button asChild>
-          <Link href="/docs">Get Started</Link>
+          <Link href="/docs/getting-started">Get Started</Link>
         </Button>
       </div>
       <div className="mx-auto flex w-full max-w-screen-xl flex-col">
@@ -143,6 +143,11 @@ const MyRuntimeProvider = ({ children }: { children: React.ReactNode }) => {
         new SimpleImageAttachmentAdapter(),
         new SimpleTextAttachmentAdapter(),
       ]),
+      feedback: {
+        submit: ({ message, type }) => {
+          console.log({ message, type });
+        },
+      },
     },
   });
   return (

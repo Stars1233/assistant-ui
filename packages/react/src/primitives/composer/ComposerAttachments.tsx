@@ -1,25 +1,33 @@
 "use client";
 
-import { ComponentType, type FC, memo } from "react";
-import { useThreadContext } from "../../context";
-import { useAttachmentContext } from "../../context/react/AttachmentContext";
-import { ComposerAttachmentProvider } from "../../context/providers/ComposerAttachmentProvider";
-import type { ThreadComposerAttachment } from "../../context/stores/Attachment";
+import { ComponentType, type FC, memo, useMemo } from "react";
+import { Attachment } from "../../types";
+import { useComposer, useComposerRuntime } from "../../context";
+import { useThreadComposerAttachment } from "../../context/react/AttachmentContext";
+import { AttachmentRuntimeProvider } from "../../context/providers/AttachmentRuntimeProvider";
 
-export type ComposerPrimitiveAttachmentsProps = {
-  components:
-    | {
-        Image?: ComponentType | undefined;
-        Document?: ComponentType | undefined;
-        File?: ComponentType | undefined;
-        Attachment?: ComponentType | undefined;
-      }
-    | undefined;
-};
+/**
+ * @deprecated Use `ComposerPrimitive.Attachments.Props` instead. This will be removed in 0.6.
+ */
+export type ComposerPrimitiveAttachmentsProps =
+  ComposerPrimitiveAttachments.Props;
+
+export namespace ComposerPrimitiveAttachments {
+  export type Props = {
+    components:
+      | {
+          Image?: ComponentType | undefined;
+          Document?: ComponentType | undefined;
+          File?: ComponentType | undefined;
+          Attachment?: ComponentType | undefined;
+        }
+      | undefined;
+  };
+}
 
 const getComponent = (
-  components: ComposerPrimitiveAttachmentsProps["components"],
-  attachment: ThreadComposerAttachment,
+  components: ComposerPrimitiveAttachments.Props["components"],
+  attachment: Attachment,
 ) => {
   const type = attachment.type;
   switch (type) {
@@ -36,11 +44,10 @@ const getComponent = (
 };
 
 const AttachmentComponent: FC<{
-  components: ComposerPrimitiveAttachmentsProps["components"];
+  components: ComposerPrimitiveAttachments.Props["components"];
 }> = ({ components }) => {
-  const { useAttachment } = useAttachmentContext({ type: "composer" });
-  const Component = useAttachment((a) =>
-    getComponent(components, a.attachment),
+  const Component = useThreadComposerAttachment((a) =>
+    getComponent(components, a),
   );
 
   if (!Component) return null;
@@ -48,12 +55,18 @@ const AttachmentComponent: FC<{
 };
 
 const ComposerAttachmentImpl: FC<
-  ComposerPrimitiveAttachmentsProps & { attachmentIndex: number }
+  ComposerPrimitiveAttachments.Props & { attachmentIndex: number }
 > = ({ components, attachmentIndex }) => {
+  const composerRuntime = useComposerRuntime();
+  const runtime = useMemo(
+    () => composerRuntime.getAttachmentByIndex(attachmentIndex),
+    [composerRuntime, attachmentIndex],
+  );
+
   return (
-    <ComposerAttachmentProvider attachmentIndex={attachmentIndex}>
+    <AttachmentRuntimeProvider runtime={runtime}>
       <AttachmentComponent components={components} />
-    </ComposerAttachmentProvider>
+    </AttachmentRuntimeProvider>
   );
 };
 
@@ -68,9 +81,8 @@ const ComposerAttachment = memo(
 );
 
 export const ComposerPrimitiveAttachments: FC<
-  ComposerPrimitiveAttachmentsProps
+  ComposerPrimitiveAttachments.Props
 > = ({ components }) => {
-  const { useComposer } = useThreadContext();
   const attachmentsCount = useComposer((s) => s.attachments.length);
 
   return Array.from({ length: attachmentsCount }, (_, index) => (

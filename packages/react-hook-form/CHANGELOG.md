@@ -1,5 +1,54 @@
 # @assistant-ui/react-hook-form
 
+## 0.4.11
+
+### Patch Changes
+
+- fb46305: chore: update dependencies
+- Updated dependencies [fb46305]
+- Updated dependencies [e225116]
+- Updated dependencies [0ff22a7]
+- Updated dependencies [378ee99]
+- Updated dependencies [378ee99]
+  - @assistant-ui/react@0.5.73
+
+## 0.4.10
+
+### Patch Changes
+
+- 88957ac: feat: New unified Runtime API (part 1/n)
+- Updated dependencies [88957ac]
+- Updated dependencies [1a99132]
+- Updated dependencies [3187013]
+  - @assistant-ui/react@0.5.61
+
+## 0.4.9
+
+### Patch Changes
+
+- 155d6e7: chore: update dependencies
+- Updated dependencies [926dce5]
+- Updated dependencies [155d6e7]
+- Updated dependencies [f80226f]
+  - @assistant-ui/react@0.5.60
+
+## 0.4.8
+
+### Patch Changes
+
+- c348553: chore: update dependencies
+- Updated dependencies [0f99aa6]
+- Updated dependencies [c348553]
+  - @assistant-ui/react@0.5.54
+
+## 0.4.7
+
+### Patch Changes
+
+- 04f6fc8: chore: update deps
+- Updated dependencies [04f6fc8]
+  - @assistant-ui/react@0.5.50
+
 ## 0.4.6
 
 ### Patch Changes

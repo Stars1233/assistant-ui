@@ -1,5 +1,138 @@
 # @assistant-ui/react-playground
 
+## 0.0.37
+
+### Patch Changes
+
+- 31702b2: feat: MessageRuntime.stopSpeaking MessageState.speech state
+- Updated dependencies [31702b2]
+- Updated dependencies [44bfecd]
+  - @assistant-ui/react@0.5.75
+
+## 0.0.36
+
+### Patch Changes
+
+- fb46305: chore: update dependencies
+- Updated dependencies [fb46305]
+- Updated dependencies [e225116]
+- Updated dependencies [0ff22a7]
+- Updated dependencies [378ee99]
+- Updated dependencies [378ee99]
+  - @assistant-ui/react@0.5.73
+
+## 0.0.35
+
+### Patch Changes
+
+- e455aff: feat: FollowupSuggestions
+- Updated dependencies [55942d8]
+- Updated dependencies [e455aff]
+- Updated dependencies [f7c156b]
+- Updated dependencies [f6a832e]
+- Updated dependencies [2b7c6fe]
+  - @assistant-ui/react@0.5.71
+
+## 0.0.34
+
+### Patch Changes
+
+- 96b9d1f: feat: new Runtime API part 8
+- d8bd40b: chore: update dependencies
+- 42156cf: refactor: drop ReactThreadRuntimeCore, unstable_synchronizer
+- Updated dependencies [96b9d1f]
+- Updated dependencies [9fd85da]
+- Updated dependencies [d8bd40b]
+- Updated dependencies [42156cf]
+  - @assistant-ui/react@0.5.68
+
+## 0.0.33
+
+### Patch Changes
+
+- 70720ba: feat: lift EditComposer to runtime layer
+- Updated dependencies [cfa8844]
+- Updated dependencies [70720ba]
+  - @assistant-ui/react@0.5.67
+
+## 0.0.32
+
+### Patch Changes
+
+- 3f549b2: refactor: rename internal export
+- Updated dependencies [325b049]
+- Updated dependencies [df9ec8f]
+- Updated dependencies [3f549b2]
+  - @assistant-ui/react@0.5.66
+
+## 0.0.31
+
+### Patch Changes
+
+- 27208fb: fix: only include "use client" banner in ESM builds
+- Updated dependencies [27208fb]
+  - @assistant-ui/react@0.5.65
+
+## 0.0.30
+
+### Patch Changes
+
+- ed24305: fix: add newline after "use client" for .js builds
+- Updated dependencies [ed24305]
+  - @assistant-ui/react@0.5.64
+
+## 0.0.29
+
+### Patch Changes
+
+- c438773: feat: allow disabling ComposerInput keyboard shortcuts
+- e1ae3d0: chore: update dependencies
+- Updated dependencies [c438773]
+- Updated dependencies [e1ae3d0]
+  - @assistant-ui/react@0.5.63
+
+## 0.0.28
+
+### Patch Changes
+
+- 88957ac: feat: New unified Runtime API (part 1/n)
+- 3970adc: refactor: remove useGetPlaygroundRuntime
+- 1a99132: feat: ThreadRuntime.Composer subscribe
+- Updated dependencies [88957ac]
+- Updated dependencies [1a99132]
+- Updated dependencies [3187013]
+  - @assistant-ui/react@0.5.61
+
+## 0.0.27
+
+### Patch Changes
+
+- 926dce5: feat: Feedback Primtives, UI and Adapter
+- 155d6e7: chore: update dependencies
+- f80226f: feat: ThreadActions.getModelConfig
+- Updated dependencies [926dce5]
+- Updated dependencies [155d6e7]
+- Updated dependencies [f80226f]
+  - @assistant-ui/react@0.5.60
+
+## 0.0.26
+
+### Patch Changes
+
+- 0f99aa6: feat: New Context API
+- c348553: chore: update dependencies
+- Updated dependencies [0f99aa6]
+- Updated dependencies [c348553]
+  - @assistant-ui/react@0.5.54
+
+## 0.0.25
+
+### Patch Changes
+
+- 04f6fc8: chore: update deps
+- Updated dependencies [04f6fc8]
+  - @assistant-ui/react@0.5.50
+
 ## 0.0.24
 
 ### Patch Changes

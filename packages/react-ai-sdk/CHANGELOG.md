@@ -1,5 +1,85 @@
 # @assistant-ui/react-ai-sdk
 
+## 0.6.11
+
+### Patch Changes
+
+- fb46305: chore: update dependencies
+- Updated dependencies [fb46305]
+- Updated dependencies [e225116]
+- Updated dependencies [0ff22a7]
+- Updated dependencies [378ee99]
+- Updated dependencies [378ee99]
+  - @assistant-ui/react@0.5.73
+
+## 0.6.10
+
+### Patch Changes
+
+- 96b9d1f: feat: new Runtime API part 8
+- Updated dependencies [96b9d1f]
+- Updated dependencies [9fd85da]
+- Updated dependencies [d8bd40b]
+- Updated dependencies [42156cf]
+  - @assistant-ui/react@0.5.68
+
+## 0.6.9
+
+### Patch Changes
+
+- 88957ac: feat: New unified Runtime API (part 1/n)
+- Updated dependencies [88957ac]
+- Updated dependencies [1a99132]
+- Updated dependencies [3187013]
+  - @assistant-ui/react@0.5.61
+
+## 0.6.8
+
+### Patch Changes
+
+- 155d6e7: chore: update dependencies
+- Updated dependencies [926dce5]
+- Updated dependencies [155d6e7]
+- Updated dependencies [f80226f]
+  - @assistant-ui/react@0.5.60
+
+## 0.6.7
+
+### Patch Changes
+
+- e4863bb: feat(runtimes/external): add onSwitchToNewThread callback
+- Updated dependencies [e4863bb]
+- Updated dependencies [e4863bb]
+  - @assistant-ui/react@0.5.56
+
+## 0.6.6
+
+### Patch Changes
+
+- c348553: chore: update dependencies
+- Updated dependencies [0f99aa6]
+- Updated dependencies [c348553]
+  - @assistant-ui/react@0.5.54
+
+## 0.6.5
+
+### Patch Changes
+
+- 132b796: feat: improve AI SDK attachments support
+- 132b796: refactor: AI SDK message converter
+- Updated dependencies [f0f7497]
+- Updated dependencies [8555685]
+- Updated dependencies [892b019]
+  - @assistant-ui/react@0.5.53
+
+## 0.6.4
+
+### Patch Changes
+
+- 04f6fc8: chore: update deps
+- Updated dependencies [04f6fc8]
+  - @assistant-ui/react@0.5.50
+
 ## 0.6.3
 
 ### Patch Changes

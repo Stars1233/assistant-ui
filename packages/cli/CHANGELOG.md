@@ -1,5 +1,48 @@
 # assistant-ui
 
+## 0.0.14
+
+### Patch Changes
+
+- fb46305: chore: update dependencies
+
+## 0.0.13
+
+### Patch Changes
+
+- d8bd40b: chore: update dependencies
+
+## 0.0.12
+
+### Patch Changes
+
+- c438773: feat: allow disabling ComposerInput keyboard shortcuts
+- e1ae3d0: chore: update dependencies
+
+## 0.0.11
+
+### Patch Changes
+
+- 155d6e7: chore: update dependencies
+
+## 0.0.10
+
+### Patch Changes
+
+- c348553: chore: update dependencies
+
+## 0.0.9
+
+### Patch Changes
+
+- 7faa03b: cli: create -t langgraph
+
+## 0.0.8
+
+### Patch Changes
+
+- 7d7bbce: fix: create command windows compatibility
+
 ## 0.0.7
 
 ### Patch Changes

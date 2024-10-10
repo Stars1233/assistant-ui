@@ -18,7 +18,7 @@ export function assistantDecoderStream() {
     transform({ type, value }, controller) {
       if (
         currentToolCall &&
-        type !== AssistantStreamChunkType.ToolCallArgsTextDelta &&
+        type !== AssistantStreamChunkType.ToolCallDelta &&
         type !== AssistantStreamChunkType.Error
       ) {
         controller.enqueue({
@@ -40,20 +40,26 @@ export function assistantDecoderStream() {
           break;
         }
         case AssistantStreamChunkType.ToolCallBegin: {
-          const { id, name } = value;
+          const { toolCallId: id, toolName: name } = value;
           toolCallNames.set(id, name);
           currentToolCall = { id, name, argsText: "" };
           break;
         }
-        case AssistantStreamChunkType.ToolCallArgsTextDelta: {
-          const delta = value;
-          currentToolCall!.argsText += delta;
+        case AssistantStreamChunkType.ToolCallDelta: {
+          const { toolCallId, argsTextDelta } = value;
+          if (currentToolCall?.id !== toolCallId) {
+            throw new Error(
+              `Received tool call delta for unknown tool call "${toolCallId}".`,
+            );
+          }
+
+          currentToolCall!.argsText += argsTextDelta;
           controller.enqueue({
             type: "tool-call-delta",
             toolCallType: "function",
             toolCallId: currentToolCall!.id,
             toolName: currentToolCall!.name,
-            argsTextDelta: delta,
+            argsTextDelta: argsTextDelta,
           });
           break;
         }
@@ -61,8 +67,8 @@ export function assistantDecoderStream() {
           controller.enqueue({
             type: "tool-result",
             toolCallType: "function",
-            toolCallId: value.id,
-            toolName: toolCallNames.get(value.id)!,
+            toolCallId: value.toolCallId,
+            toolName: toolCallNames.get(value.toolCallId)!,
             result: value.result,
           });
           break;
@@ -81,6 +87,39 @@ export function assistantDecoderStream() {
           });
           break;
         }
+
+        case AssistantStreamChunkType.ToolCall: {
+          const { toolCallId, toolName, args } = value;
+          const argsText = JSON.stringify(args);
+          controller.enqueue({
+            type: "tool-call-delta",
+            toolCallType: "function",
+            toolCallId,
+            toolName,
+            argsTextDelta: argsText,
+          });
+          controller.enqueue({
+            type: "tool-call",
+            toolCallType: "function",
+            toolCallId: toolCallId,
+            toolName: toolName,
+            args: argsText,
+          });
+          break;
+        }
+
+        case AssistantStreamChunkType.StepFinish: {
+          controller.enqueue({
+            type: "step-finish",
+            ...value,
+          });
+          break;
+        }
+
+        // TODO
+        case AssistantStreamChunkType.Data:
+          break;
+
         default: {
           const unhandledType: never = type;
           throw new Error(`Unhandled chunk type: ${unhandledType}`);

@@ -1,9 +1,10 @@
 "use client";
 
-import { AssistantRuntimeProvider } from "@assistant-ui/react";
-import { useLangChainLangGraphRuntime } from "@assistant-ui/react-langgraph";
 import { useRef } from "react";
-import { createThread, sendMessage } from "@/lib/chatApi";
+import { AssistantRuntimeProvider } from "@assistant-ui/react";
+import { useLangGraphRuntime } from "@assistant-ui/react-langgraph";
+import { createThread, getThreadState, sendMessage } from "@/lib/chatApi";
+import { LangChainMessage } from "@assistant-ui/react-langgraph";
 
 export function MyRuntimeProvider({
   children,
@@ -11,9 +12,9 @@ export function MyRuntimeProvider({
   children: React.ReactNode;
 }>) {
   const threadIdRef = useRef<string | undefined>();
-  const runtime = useLangChainLangGraphRuntime({
+  const runtime = useLangGraphRuntime({
     threadId: threadIdRef.current,
-    stream: async (message) => {
+    stream: async (messages) => {
       if (!threadIdRef.current) {
         const { thread_id } = await createThread();
         threadIdRef.current = thread_id;
@@ -21,12 +22,19 @@ export function MyRuntimeProvider({
       const threadId = threadIdRef.current;
       return sendMessage({
         threadId,
-        assistantId: process.env["NEXT_PUBLIC_LANGGRAPH_GRAPH_ID"] as string,
-        message,
-        model: "openai",
-        userId: "",
-        systemInstructions: "",
+        messages,
       });
+    },
+    onSwitchToNewThread: async () => {
+      const { thread_id } = await createThread();
+      threadIdRef.current = thread_id;
+    },
+    onSwitchToThread: async (threadId) => {
+      const state = await getThreadState(threadId);
+      threadIdRef.current = threadId;
+      return {
+        messages: (state.values as { messages: LangChainMessage[] }).messages,
+      };
     },
   });
 

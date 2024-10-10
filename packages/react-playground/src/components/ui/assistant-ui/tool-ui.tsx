@@ -1,7 +1,7 @@
 import {
   ToolCallContentPart,
   ToolCallContentPartComponent,
-  useContentPartContext,
+  useContentPart,
 } from "@assistant-ui/react";
 import { FC, useEffect, useState } from "react";
 import { CornerDownRightIcon } from "lucide-react";
@@ -9,13 +9,13 @@ import { JSONEditor } from "./json-editor";
 import { tryJsonParse } from "../../../lib/openai/tryJsonParse";
 import { RemoveContentPartButton } from "./remove-content-part";
 
-export const ToolUI: ToolCallContentPartComponent = ({ part }) => {
+export const ToolUI: ToolCallContentPartComponent = ({ toolName }) => {
   return (
     <div className="bg-aui-muted flex flex-col gap-2 rounded py-4">
       <div className="mx-4 flex justify-between gap-2">
         <p>
           <span className="font-semibold">Used tool: </span>
-          <span className="font-mono">{part.toolName}</span>
+          <span className="font-mono">{toolName}</span>
         </p>
         <RemoveContentPartButton />
       </div>
@@ -30,7 +30,6 @@ export const ToolUI: ToolCallContentPartComponent = ({ part }) => {
 };
 
 const useContentPartTool = () => {
-  const { useContentPart } = useContentPartContext();
   const part = useContentPart((c) => c.part);
   return part as ToolCallContentPart;
 };

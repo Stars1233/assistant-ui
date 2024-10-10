@@ -1,32 +1,67 @@
 "use client";
 
-import { createContext, useContext } from "react";
-import type { AssistantModelConfigState } from "../stores/AssistantModelConfig";
+import { createContext } from "react";
 import type { AssistantToolUIsState } from "../stores/AssistantToolUIs";
 import { ReadonlyStore } from "../ReadonlyStore";
-import { AssistantActionsState } from "../stores/AssistantActions";
-import { AssistantRuntime } from "../../runtimes";
+import { createContextHook } from "./utils/createContextHook";
+import { createContextStoreHook } from "./utils/createContextStoreHook";
+import { UseBoundStore } from "zustand";
+import { AssistantRuntime } from "../../api/AssistantRuntime";
 
 export type AssistantContextValue = {
-  useModelConfig: ReadonlyStore<AssistantModelConfigState>;
-  useToolUIs: ReadonlyStore<AssistantToolUIsState>;
-  useAssistantRuntime: ReadonlyStore<AssistantRuntime>;
-  useAssistantActions: ReadonlyStore<AssistantActionsState>;
+  useToolUIs: UseBoundStore<ReadonlyStore<AssistantToolUIsState>>;
+  useAssistantRuntime: UseBoundStore<ReadonlyStore<AssistantRuntime>>;
+
+  /**
+   * @deprecated Use `useAssistantRuntime` instead. This will be removed in 0.6.0.
+   */
+  useAssistantActions: UseBoundStore<ReadonlyStore<AssistantRuntime>>;
 };
 
 export const AssistantContext = createContext<AssistantContextValue | null>(
   null,
 );
 
-export function useAssistantContext(): AssistantContextValue;
-export function useAssistantContext(options: {
-  optional: true;
-}): AssistantContextValue | null;
-export function useAssistantContext(options?: { optional: true }) {
-  const context = useContext(AssistantContext);
-  if (!options?.optional && !context)
-    throw new Error(
-      "This component must be used within an AssistantRuntimeProvider.",
-    );
-  return context;
+export const useAssistantContext = createContextHook(
+  AssistantContext,
+  "AssistantRuntimeProvider",
+);
+
+export function useAssistantRuntime(options?: {
+  optional?: false | undefined;
+}): AssistantRuntime;
+export function useAssistantRuntime(options?: {
+  optional?: boolean | undefined;
+}): AssistantRuntime | null;
+export function useAssistantRuntime(options?: {
+  optional?: boolean | undefined;
+}) {
+  const context = useAssistantContext(options);
+  if (!context) return null;
+  return context.useAssistantRuntime();
 }
+
+export const actions = createContextStoreHook(
+  useAssistantContext,
+  "useAssistantActions",
+);
+
+/**
+ * @deprecated Use `useAssistantRuntime` instead. This will be removed in 0.6.0.
+ */
+export const useAssistantActionsStore = actions.useAssistantActionsStore;
+
+/**
+ * @deprecated Use `useAssistantRuntime` instead. This will be removed in 0.6.0.
+ */
+export const useAssistantActions = actions.useAssistantActions;
+
+/**
+ * @deprecated Use `useAssistantRuntime` instead. This will be removed in 0.6.0.
+ */
+export const useAssistantRuntimeStore = useAssistantActionsStore;
+
+export const { useToolUIs, useToolUIsStore } = createContextStoreHook(
+  useAssistantContext,
+  "useToolUIs",
+);

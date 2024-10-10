@@ -1,25 +1,33 @@
 "use client";
 
-import { ComponentType, type FC, memo } from "react";
-import { useMessageContext } from "../../context";
-import { useAttachmentContext } from "../../context/react/AttachmentContext";
-import { MessageAttachmentProvider } from "../../context/providers/MessageAttachmentProvider";
-import type { MessageAttachment } from "../../context/stores/Attachment";
+import { ComponentType, type FC, memo, useMemo } from "react";
+import { useMessage, useMessageRuntime } from "../../context";
+import { useMessageAttachment } from "../../context/react/AttachmentContext";
+import { AttachmentRuntimeProvider } from "../../context/providers/AttachmentRuntimeProvider";
+import { CompleteAttachment } from "../../types";
 
-export type MessagePrimitiveAttachmentsProps = {
-  components:
-    | {
-        Image?: ComponentType | undefined;
-        Document?: ComponentType | undefined;
-        File?: ComponentType | undefined;
-        Attachment?: ComponentType | undefined;
-      }
-    | undefined;
-};
+/**
+ * @deprecated Use `MessagePrimitive.Attachments.Props` instead. This will be removed in 0.6.
+ */
+export type MessagePrimitiveAttachmentsProps =
+  MessagePrimitiveAttachments.Props;
+
+export namespace MessagePrimitiveAttachments {
+  export type Props = {
+    components:
+      | {
+          Image?: ComponentType | undefined;
+          Document?: ComponentType | undefined;
+          File?: ComponentType | undefined;
+          Attachment?: ComponentType | undefined;
+        }
+      | undefined;
+  };
+}
 
 const getComponent = (
-  components: MessagePrimitiveAttachmentsProps["components"],
-  attachment: MessageAttachment,
+  components: MessagePrimitiveAttachments.Props["components"],
+  attachment: CompleteAttachment,
 ) => {
   const type = attachment.type;
   switch (type) {
@@ -36,10 +44,9 @@ const getComponent = (
 };
 
 const AttachmentComponent: FC<{
-  components: MessagePrimitiveAttachmentsProps["components"];
+  components: MessagePrimitiveAttachments.Props["components"];
 }> = ({ components }) => {
-  const { useAttachment } = useAttachmentContext({ type: "message" });
-  const Component = useAttachment((a) =>
+  const Component = useMessageAttachment((a) =>
     getComponent(components, a.attachment),
   );
 
@@ -48,12 +55,18 @@ const AttachmentComponent: FC<{
 };
 
 const MessageAttachmentImpl: FC<
-  MessagePrimitiveAttachmentsProps & { attachmentIndex: number }
+  MessagePrimitiveAttachments.Props & { attachmentIndex: number }
 > = ({ components, attachmentIndex }) => {
+  const messageRuntime = useMessageRuntime();
+  const runtime = useMemo(
+    () => messageRuntime.getAttachmentByIndex(attachmentIndex),
+    [messageRuntime, attachmentIndex],
+  );
+
   return (
-    <MessageAttachmentProvider attachmentIndex={attachmentIndex}>
+    <AttachmentRuntimeProvider runtime={runtime}>
       <AttachmentComponent components={components} />
-    </MessageAttachmentProvider>
+    </AttachmentRuntimeProvider>
   );
 };
 
@@ -68,9 +81,8 @@ const MessageAttachment = memo(
 );
 
 export const MessagePrimitiveAttachments: FC<
-  MessagePrimitiveAttachmentsProps
+  MessagePrimitiveAttachments.Props
 > = ({ components }) => {
-  const { useMessage } = useMessageContext();
   const attachmentsCount = useMessage(({ message }) => {
     if (message.role !== "user") return 0;
     return message.attachments.length;

@@ -1,5 +1,48 @@
 # @assistant-ui/react-syntax-highlighter
 
+## 0.0.14
+
+### Patch Changes
+
+- fb46305: chore: update dependencies
+- Updated dependencies [fb46305]
+- Updated dependencies [e225116]
+- Updated dependencies [0ff22a7]
+- Updated dependencies [378ee99]
+- Updated dependencies [378ee99]
+  - @assistant-ui/react-markdown@0.2.19
+  - @assistant-ui/react@0.5.73
+
+## 0.0.13
+
+### Patch Changes
+
+- 155d6e7: chore: update dependencies
+- Updated dependencies [926dce5]
+- Updated dependencies [155d6e7]
+- Updated dependencies [f80226f]
+  - @assistant-ui/react@0.5.60
+  - @assistant-ui/react-markdown@0.2.14
+
+## 0.0.12
+
+### Patch Changes
+
+- c348553: chore: update dependencies
+- Updated dependencies [0f99aa6]
+- Updated dependencies [c348553]
+  - @assistant-ui/react@0.5.54
+  - @assistant-ui/react-markdown@0.2.13
+
+## 0.0.11
+
+### Patch Changes
+
+- 04f6fc8: chore: update deps
+- Updated dependencies [04f6fc8]
+  - @assistant-ui/react-markdown@0.2.12
+  - @assistant-ui/react@0.5.50
+
 ## 0.0.10
 
 ### Patch Changes

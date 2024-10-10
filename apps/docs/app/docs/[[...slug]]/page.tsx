@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { EditIcon } from "lucide-react";
+import { useMDXComponents } from "@/mdx-components";
 
 export default async function Page({
   params,
@@ -12,6 +13,7 @@ export default async function Page({
   params: { slug?: string[] };
 }) {
   const page = getPage(params.slug ?? []);
+  const mdxComponents = useMDXComponents({});
 
   if (page == null) {
     notFound();
@@ -37,17 +39,15 @@ export default async function Page({
     </a>
   );
 
-  const MDX = (page.data as any).exports.default;
-
   return (
     <DocsPage
-      toc={(page.data as any).exports.toc}
-      full={(page.data as any).full}
+      toc={page.data.toc}
+      full={page.data.full ?? false}
       tableOfContent={{ footer }}
     >
       <DocsBody>
-        <h1>{(page.data as any).title}</h1>
-        <MDX />
+        <h1>{page.data.title}</h1>
+        <page.data.body components={mdxComponents} />
       </DocsBody>
     </DocsPage>
   );
@@ -67,7 +67,7 @@ export function generateMetadata({ params }: { params: { slug?: string[] } }) {
   if (page == null) notFound();
 
   return {
-    title: (page.data as any).title,
-    description: (page.data as any).description,
+    title: page.data.title,
+    description: page.data.description ?? null,
   } satisfies Metadata;
 }

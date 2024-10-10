@@ -9,14 +9,15 @@ import {
   useContext,
 } from "react";
 
+import { AssistantRuntime } from "../api/AssistantRuntime";
 import { AvatarProps } from "./base/avatar";
 import { TextContentPartComponent, ToolCallContentPartProps } from "../types";
-import { AssistantRuntime } from "../runtimes";
-import { AssistantRuntimeProvider, useAssistantContext } from "../context";
+import { AssistantRuntimeProvider } from "../context";
 import { AssistantToolUI } from "../model-config";
+import { useAssistantRuntime } from "../context/react/AssistantContext";
 
 export type SuggestionConfig = {
-  text?: ReactNode;
+  text?: ReactNode | undefined;
   prompt: string;
 };
 
@@ -33,6 +34,8 @@ export type AssistantMessageConfig = {
   allowReload?: boolean | undefined;
   allowCopy?: boolean | undefined;
   allowSpeak?: boolean | undefined;
+  allowFeedbackPositive?: boolean | undefined;
+  allowFeedbackNegative?: boolean | undefined;
   components?:
     | {
         Text?: TextContentPartComponent | undefined;
@@ -82,6 +85,14 @@ export type StringsConfig = {
     speak?: {
       tooltip?: string | undefined;
       stop?: {
+        tooltip?: string | undefined;
+      };
+    };
+    feedback?: {
+      positive?: {
+        tooltip?: string | undefined;
+      };
+      negative?: {
         tooltip?: string | undefined;
       };
     };
@@ -137,21 +148,28 @@ export type StringsConfig = {
 const ThreadConfigContext = createContext<ThreadConfig>({});
 
 export type ThreadConfig = {
-  runtime?: AssistantRuntime;
+  runtime?: AssistantRuntime | undefined;
 
-  assistantAvatar?: AvatarProps;
+  assistantAvatar?: AvatarProps | undefined;
 
-  welcome?: ThreadWelcomeConfig;
-  assistantMessage?: AssistantMessageConfig;
-  userMessage?: UserMessageConfig;
+  welcome?: ThreadWelcomeConfig | undefined;
+  assistantMessage?: AssistantMessageConfig | undefined;
+  userMessage?: UserMessageConfig | undefined;
 
-  branchPicker?: BranchPickerConfig;
+  branchPicker?: BranchPickerConfig | undefined;
 
-  composer?: ComposerConfig;
+  composer?: ComposerConfig | undefined;
 
-  strings?: StringsConfig;
+  strings?: StringsConfig | undefined;
 
-  tools?: AssistantToolUI[]; // TODO add AssistantTool support
+  tools?: AssistantToolUI[] | undefined; // TODO add AssistantTool support
+
+  components?:
+    | {
+        Composer?: ComponentType | undefined;
+        ThreadWelcome?: ComponentType | undefined;
+      }
+    | undefined;
 };
 
 export const useThreadConfig = (): Omit<ThreadConfig, "runtime"> => {
@@ -166,7 +184,7 @@ export const ThreadConfigProvider: FC<ThreadConfigProviderProps> = ({
   children,
   config,
 }) => {
-  const assistant = useAssistantContext({ optional: true });
+  const hasAssistant = !!useAssistantRuntime({ optional: true });
 
   const configProvider =
     config && Object.keys(config ?? {}).length > 0 ? (
@@ -178,7 +196,7 @@ export const ThreadConfigProvider: FC<ThreadConfigProviderProps> = ({
     );
   if (!config?.runtime) return configProvider;
 
-  if (assistant) {
+  if (hasAssistant) {
     throw new Error(
       "You provided a runtime to <Thread> while simulataneously using <AssistantRuntimeProvider>. This is not allowed.",
     );

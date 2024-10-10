@@ -1,5 +1,8 @@
 "use client";
-import { useMessageContext } from "../../context/react/MessageContext";
+import {
+  useMessageStore,
+  useMessageUtilsStore,
+} from "../../context/react/MessageContext";
 import type { RequireAtLeastOne } from "../../utils/RequireAtLeastOne";
 import { useCombinedStore } from "../../utils/combined/useCombinedStore";
 
@@ -12,38 +15,49 @@ type MessageIfFilters = {
   lastOrHover: boolean | undefined;
   speaking: boolean | undefined;
   hasAttachments: boolean | undefined;
+  submittedFeedback: "positive" | "negative" | null | undefined;
 };
 export type UseMessageIfProps = RequireAtLeastOne<MessageIfFilters>;
 
 export const useMessageIf = (props: UseMessageIfProps) => {
-  const { useMessage, useMessageUtils } = useMessageContext();
+  const messageStore = useMessageStore();
+  const messageUtilsStore = useMessageUtilsStore();
 
   return useCombinedStore(
-    [useMessage, useMessageUtils],
-    ({ message, branches, isLast }, { isCopied, isHovering, isSpeaking }) => {
-      if (props.hasBranches === true && branches.length < 2) return false;
+    [messageStore, messageUtilsStore],
+    (
+      { role, attachments, branchCount, isLast, speech },
+      { isCopied, isHovering, submittedFeedback },
+    ) => {
+      if (props.hasBranches === true && branchCount < 2) return false;
 
-      if (props.user && message.role !== "user") return false;
-      if (props.assistant && message.role !== "assistant") return false;
-      if (props.system && message.role !== "system") return false;
+      if (props.user && role !== "user") return false;
+      if (props.assistant && role !== "assistant") return false;
+      if (props.system && role !== "system") return false;
 
       if (props.lastOrHover === true && !isHovering && !isLast) return false;
 
       if (props.copied === true && !isCopied) return false;
       if (props.copied === false && isCopied) return false;
 
-      if (props.speaking === true && !isSpeaking) return false;
-      if (props.speaking === false && isSpeaking) return false;
+      if (props.speaking === true && speech == null) return false;
+      if (props.speaking === false && speech != null) return false;
 
       if (
         props.hasAttachments === true &&
-        (message.role !== "user" || !message.attachments.length)
+        (role !== "user" || !attachments.length)
       )
         return false;
       if (
         props.hasAttachments === false &&
-        message.role === "user" &&
-        !!message.attachments.length
+        role === "user" &&
+        !!attachments.length
+      )
+        return false;
+
+      if (
+        props.submittedFeedback !== undefined &&
+        submittedFeedback !== props.submittedFeedback
       )
         return false;
 

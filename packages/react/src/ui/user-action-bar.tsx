@@ -9,12 +9,11 @@ import {
 } from "./base/tooltip-icon-button";
 import { withDefaults } from "./utils/withDefaults";
 import { useThreadConfig } from "./thread-config";
-import { useThreadContext } from "../context";
+import { useThread } from "../context";
 import { ActionBarPrimitive } from "../primitives";
 
 const useAllowEdit = (ensureCapability = false) => {
   const { userMessage: { allowEdit = true } = {} } = useThreadConfig();
-  const { useThread } = useThreadContext();
   const editSupported = useThread((t) => t.capabilities.edit);
   return allowEdit && (!ensureCapability || editSupported);
 };
@@ -37,9 +36,14 @@ const UserActionBarRoot = withDefaults(ActionBarPrimitive.Root, {
 
 UserActionBarRoot.displayName = "UserActionBarRoot";
 
+namespace UserActionBarEdit {
+  export type Element = ActionBarPrimitive.Edit.Element;
+  export type Props = Partial<TooltipIconButtonProps>;
+}
+
 const UserActionBarEdit = forwardRef<
-  HTMLButtonElement,
-  Partial<TooltipIconButtonProps>
+  UserActionBarEdit.Element,
+  UserActionBarEdit.Props
 >((props, ref) => {
   const {
     strings: { userMessage: { edit: { tooltip = "Edit" } = {} } = {} } = {},

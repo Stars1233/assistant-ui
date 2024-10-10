@@ -1,26 +1,42 @@
 "use client";
 
-import { createContext, useContext } from "react";
-import type { ContentPartState } from "../stores/ContentPart";
+import { createContext } from "react";
 import { ReadonlyStore } from "../ReadonlyStore";
+import { createContextStoreHook } from "./utils/createContextStoreHook";
+import { createContextHook } from "./utils/createContextHook";
+import { UseBoundStore } from "zustand";
+import { ContentPartRuntime } from "../../api";
+import { ContentPartState } from "../../api/ContentPartRuntime";
 
 export type ContentPartContextValue = {
-  useContentPart: ReadonlyStore<ContentPartState>;
+  useContentPartRuntime: UseBoundStore<ReadonlyStore<ContentPartRuntime>>;
+  useContentPart: UseBoundStore<ReadonlyStore<ContentPartState>>;
 };
 
 export const ContentPartContext = createContext<ContentPartContextValue | null>(
   null,
 );
 
-export function useContentPartContext(): ContentPartContextValue;
-export function useContentPartContext(options: {
-  optional: true;
-}): ContentPartContextValue | null;
-export function useContentPartContext(options?: { optional: true }) {
-  const context = useContext(ContentPartContext);
-  if (!options?.optional && !context)
-    throw new Error(
-      "This component can only be used inside a component passed to <MessagePrimitive.Content components={...} >.",
-    );
-  return context;
+export const useContentPartContext = createContextHook(
+  ContentPartContext,
+  "a component passed to <MessagePrimitive.Content components={...}>",
+);
+
+export function useContentPartRuntime(options?: {
+  optional?: false | undefined;
+}): ContentPartRuntime;
+export function useContentPartRuntime(options?: {
+  optional?: boolean | undefined;
+}): ContentPartRuntime | null;
+export function useContentPartRuntime(options?: {
+  optional?: boolean | undefined;
+}) {
+  const context = useContentPartContext(options);
+  if (!context) return null;
+  return context.useContentPartRuntime();
 }
+
+export const { useContentPart, useContentPartStore } = createContextStoreHook(
+  useContentPartContext,
+  "useContentPart",
+);

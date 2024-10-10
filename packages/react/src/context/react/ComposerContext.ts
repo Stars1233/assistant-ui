@@ -1,25 +1,45 @@
 import { useMemo } from "react";
-import { useMessageContext } from "./MessageContext";
-import { useThreadContext } from "./ThreadContext";
-import type { ComposerState } from "../stores/Composer";
-import type { EditComposerState } from "../stores/EditComposer";
+import { useMessageContext, useMessageRuntime } from "./MessageContext";
+import { useThreadContext, useThreadRuntime } from "./ThreadContext";
 import { ReadonlyStore } from "../ReadonlyStore";
+import { createContextStoreHook } from "./utils/createContextStoreHook";
+import { ComposerRuntime, ComposerState } from "../../api/ComposerRuntime";
+import { UseBoundStore } from "zustand";
 
 export type ComposerContextValue = {
-  useComposer: ReadonlyStore<EditComposerState | ComposerState>;
+  useComposer: UseBoundStore<ReadonlyStore<ComposerState>>;
   type: "edit" | "new";
 };
 
 export const useComposerContext = (): ComposerContextValue => {
-  const { useComposer } = useThreadContext();
+  const { useComposer: useThreadComposer } = useThreadContext();
   const { useEditComposer } = useMessageContext({ optional: true }) ?? {};
   return useMemo(
     () => ({
-      useComposer: (useEditComposer ?? useComposer) as ReadonlyStore<
-        EditComposerState | ComposerState
-      >,
+      useComposer: useEditComposer ?? useThreadComposer,
       type: useEditComposer ? ("edit" as const) : ("new" as const),
     }),
-    [useEditComposer, useComposer],
+    [useEditComposer, useThreadComposer],
   );
 };
+
+export const { useComposer, useComposerStore } = createContextStoreHook(
+  useComposerContext,
+  "useComposer",
+);
+
+export function useComposerRuntime(options?: {
+  optional?: false | undefined;
+}): ComposerRuntime;
+export function useComposerRuntime(options?: {
+  optional?: boolean | undefined;
+}): ComposerRuntime | null;
+export function useComposerRuntime(options?: {
+  optional?: boolean | undefined;
+}): ComposerRuntime | null {
+  const messageRuntime = useMessageRuntime({ optional: true });
+  const threadRuntime = useThreadRuntime(options);
+  return messageRuntime
+    ? messageRuntime.composer
+    : (threadRuntime?.composer ?? null);
+}

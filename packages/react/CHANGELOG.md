@@ -1,5 +1,190 @@
 # @assistant-ui/react
 
+## 0.5.75
+
+### Patch Changes
+
+- 31702b2: feat: MessageRuntime.stopSpeaking MessageState.speech state
+- 44bfecd: refactor: move primitive types under the same namespace as the primitive components
+
+## 0.5.74
+
+### Patch Changes
+
+- 3d31f10: refactor: deprecate primitive-hooks
+- cf872da: feat: AttachmentPrimitive
+
+## 0.5.73
+
+### Patch Changes
+
+- fb46305: chore: update dependencies
+- e225116: feat(ui): add component override option for ThreadWelcome
+- 0ff22a7: feat: switch to DataStream transfer protocol for edge runtime
+- 378ee99: refactor: rename maxToolRoundtrips to maxSteps
+- 378ee99: feat: server-side tool roundtrips support
+
+## 0.5.72
+
+### Patch Changes
+
+- d0db602: fix: useDangerousInBrowserRuntime correct options forwarding
+
+## 0.5.71
+
+### Patch Changes
+
+- 55942d8: fix: useContentPartText backwards compat type
+- e455aff: feat: FollowupSuggestions
+- f7c156b: feat: mark new runtime API methods as stable
+- f6a832e: chore: update dependencies
+- 2b7c6fe: refactor: define interface types for the new runtime API
+
+## 0.5.70
+
+### Patch Changes
+
+- 3df0061: fix: TextContentPartProvider missing fields
+
+## 0.5.69
+
+### Patch Changes
+
+- 46f91c2: feat(langgraph): allow disabling autocancellation of pending tool calls
+
+## 0.5.68
+
+### Patch Changes
+
+- 96b9d1f: feat: new Runtime API part 8
+- 9fd85da: fix: ensure branch picker is supported before showing it
+- d8bd40b: chore: update dependencies
+- 42156cf: refactor: drop ReactThreadRuntimeCore, unstable_synchronizer
+
+## 0.5.67
+
+### Patch Changes
+
+- cfa8844: feat: useComposerRuntime hook
+- 70720ba: feat: lift EditComposer to runtime layer
+
+## 0.5.66
+
+### Patch Changes
+
+- 325b049: fix: include attachments prop in the useExternalMessageConverter
+- df9ec8f: feat: new Runtime API rollout part 2
+- 3f549b2: refactor: rename internal export
+
+## 0.5.65
+
+### Patch Changes
+
+- 27208fb: fix: only include "use client" banner in ESM builds
+
+## 0.5.64
+
+### Patch Changes
+
+- ed24305: fix: add newline after "use client" for .js builds
+
+## 0.5.63
+
+### Patch Changes
+
+- c438773: feat: allow disabling ComposerInput keyboard shortcuts
+- e1ae3d0: chore: update dependencies
+
+## 0.5.62
+
+### Patch Changes
+
+- cd1b286: fix: BranchPicker styles
+
+## 0.5.61
+
+### Patch Changes
+
+- 88957ac: feat: New unified Runtime API (part 1/n)
+- 1a99132: feat: ThreadRuntime.Composer subscribe
+- 3187013: feat: add status, attachments and metadata fields to all messages
+
+## 0.5.60
+
+### Patch Changes
+
+- 926dce5: feat: Feedback Primtives, UI and Adapter
+- 155d6e7: chore: update dependencies
+- f80226f: feat: ThreadActions.getModelConfig
+
+## 0.5.59
+
+### Patch Changes
+
+- 0f547a9: fix: useSmooth should work inside TextContentPartProvider
+
+## 0.5.58
+
+### Patch Changes
+
+- 6507071: fix: TextContentPartProvider text streaming support
+- 6507071: feat: TextContentPartProvider isRunning
+
+## 0.5.57
+
+### Patch Changes
+
+- 745d6e1: fix(runtimes/external-store): switch to thread should correctly copy the entire store
+- 745d6e1: fix: only deprecate the null usage of switchToThread
+
+## 0.5.56
+
+### Patch Changes
+
+- e4863bb: feat(runtimes/external): add onSwitchToNewThread callback
+- e4863bb: feat: add attachmentAccept to ThreadComposer
+
+## 0.5.55
+
+### Patch Changes
+
+- b0a22e3: feat: runtime.switchToNewThread()
+- 11ca453: refactor: drop useModelConfig Context - use useAssistantActions instead
+
+## 0.5.54
+
+### Patch Changes
+
+- 0f99aa6: feat: New Context API
+- c348553: chore: update dependencies
+
+## 0.5.53
+
+### Patch Changes
+
+- f0f7497: feat: MessageContent Empty should be displayed for empty messages with empty text part
+- 8555685: feat: allow editing assistant/system messages
+- 892b019: fix: Empty should default to the provided Text component
+
+## 0.5.52
+
+### Patch Changes
+
+- c0f975a: feat: TextContentPartProvider
+
+## 0.5.51
+
+### Patch Changes
+
+- 164e46c: feat: ignore edits with text part unchanged
+- 5eccae7: fix: createActionButton disabled handling
+
+## 0.5.50
+
+### Patch Changes
+
+- 04f6fc8: chore: update deps
+
 ## 0.5.49
 
 ### Patch Changes

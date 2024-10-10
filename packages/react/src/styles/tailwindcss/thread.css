@@ -9,17 +9,25 @@
 }
 
 .aui-thread-viewport-footer {
-  @apply sticky bottom-0 mt-4 flex w-full max-w-2xl flex-grow flex-col items-center justify-end rounded-t-lg bg-inherit pb-4;
+  @apply sticky bottom-0 mt-3 flex w-full max-w-2xl flex-col items-center justify-end rounded-t-lg bg-inherit pb-4;
 }
 
 .aui-thread-scroll-to-bottom {
   @apply absolute -top-8 rounded-full disabled:invisible;
 }
 
+.aui-thread-followup-suggestions {
+  @apply flex min-h-8 items-center justify-center gap-2;
+}
+
+.aui-thread-followup-suggestion {
+  @apply bg-aui-background hover:bg-aui-muted/80 rounded-full border px-3 py-1 text-sm transition-colors ease-in;
+}
+
 /* thread welcome */
 
 .aui-thread-welcome-root {
-  @apply flex w-full max-w-2xl flex-grow basis-full flex-col;
+  @apply flex w-full max-w-2xl flex-grow flex-col;
 }
 
 .aui-thread-welcome-center {
@@ -31,21 +39,23 @@
 }
 
 .aui-thread-welcome-suggestion-container {
-  @apply mt-4 flex w-full items-stretch justify-center gap-4;
+  @apply mt-3 flex w-full items-stretch justify-center gap-4;
 }
 
 .aui-thread-welcome-suggestion {
-  @apply flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3;
+  @apply hover:bg-aui-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in;
 }
 
 .aui-thread-welcome-suggestion-text {
   @apply line-clamp-2 text-ellipsis text-sm font-semibold;
 }
 
-/* composer */
+/* TODO rename classes to .aui-thread-composer-root ? */
+/* rename composer to thread composer everywhere */
+/* thread composer */
 
 .aui-composer-root {
-  @apply focus-within:border-aui-ring/20 flex w-full flex-wrap items-end rounded-lg border px-2.5 shadow-sm transition-colors ease-in;
+  @apply focus-within:border-aui-ring/20 flex w-full flex-wrap items-end rounded-lg border bg-inherit px-2.5 shadow-sm transition-colors ease-in;
 }
 
 .aui-composer-input {
@@ -164,6 +174,14 @@
 
 :where(.aui-assistant-action-bar-root)[data-floating] {
   @apply bg-aui-background absolute rounded-md border p-1 shadow-sm;
+}
+
+:where(.aui-assistant-action-bar-feedback-positive)[data-submitted] {
+  @apply text-green-600 hover:text-green-700 dark:text-green-500 dark:hover:text-green-400;
+}
+
+:where(.aui-assistant-action-bar-feedback-negative)[data-submitted] {
+  @apply text-red-600 hover:text-red-700 dark:text-red-500 dark:hover:text-red-400;
 }
 
 /* branch picker */

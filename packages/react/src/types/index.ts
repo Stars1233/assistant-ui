@@ -1,4 +1,11 @@
 export type {
+  Attachment,
+  PendingAttachment,
+  CompleteAttachment,
+  AttachmentStatus,
+} from "./AttachmentTypes";
+
+export type {
   AppendMessage,
   TextContentPart,
   ImageContentPart,
@@ -24,6 +31,8 @@ export type {
 } from "./AssistantTypes";
 
 export type {
+  EmptyContentPartProps,
+  EmptyContentPartComponent,
   TextContentPartProps,
   TextContentPartComponent,
   ImageContentPartProps,

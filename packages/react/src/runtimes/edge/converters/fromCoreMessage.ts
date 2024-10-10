@@ -4,6 +4,7 @@ import {
   CoreMessage,
   ToolCallContentPart,
   MessageStatus,
+  CompleteAttachment,
 } from "../../../types";
 
 export const fromCoreMessages = (
@@ -17,6 +18,7 @@ export const fromCoreMessage = (
   {
     id = generateId(),
     status = { type: "complete", reason: "unknown" } as MessageStatus,
+    attachments = [] as readonly CompleteAttachment[],
   } = {},
 ): ThreadMessage => {
   const commonProps = {
@@ -47,7 +49,7 @@ export const fromCoreMessage = (
         ...commonProps,
         role,
         content: message.content,
-        attachments: [],
+        attachments,
       } satisfies ThreadMessage;
 
     case "system":

@@ -1,6 +1,7 @@
-import { AddToolResultOptions } from "../../context";
 import { AppendMessage, ThreadMessage } from "../../types";
 import { AttachmentAdapter } from "../attachment";
+import { AddToolResultOptions, ThreadSuggestion } from "../core";
+import { FeedbackAdapter } from "../feedback/FeedbackAdapter";
 import { SpeechSynthesisAdapter } from "../speech/SpeechAdapterTypes";
 import { ThreadMessageLike } from "./ThreadMessageLike";
 
@@ -18,24 +19,30 @@ type ExternalStoreAdapterBase<T> = {
   isDisabled?: boolean | undefined;
   isRunning?: boolean | undefined;
   messages: T[];
+  suggestions?: readonly ThreadSuggestion[] | undefined;
+  extras?: unknown;
+
   setMessages?: ((messages: T[]) => void) | undefined;
   onNew: (message: AppendMessage) => Promise<void>;
   onEdit?: ((message: AppendMessage) => Promise<void>) | undefined;
   onReload?: ((parentId: string | null) => Promise<void>) | undefined;
   onCancel?: (() => Promise<void>) | undefined;
-  onNewThread?: (() => Promise<void> | void) | undefined;
   onAddToolResult?:
     | ((options: AddToolResultOptions) => Promise<void> | void)
     | undefined;
-  onSwitchThread?:
-    | ((threadId: string | null) => Promise<void> | void)
-    | undefined;
+  onSwitchToThread?: ((threadId: string) => Promise<void> | void) | undefined;
+  onSwitchToNewThread?: (() => Promise<void> | void) | undefined;
+  /**
+   * @deprecated Provide a speech adapter to `ExternalStoreAdapter.adapters.speech` instead. This will be removed in 0.6.
+   */
   onSpeak?:
     | ((message: ThreadMessage) => SpeechSynthesisAdapter.Utterance)
     | undefined;
   convertMessage?: ExternalStoreMessageConverter<T> | undefined;
   adapters?: {
     attachments?: AttachmentAdapter | undefined;
+    speech?: SpeechSynthesisAdapter | undefined;
+    feedback?: FeedbackAdapter | undefined;
   };
   unstable_capabilities?:
     | {

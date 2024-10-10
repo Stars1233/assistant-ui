@@ -1,6 +1,6 @@
 import { LanguageModelV1LogProbs } from "@ai-sdk/provider";
 import type { ReactNode } from "react";
-import { MessageAttachment } from "../context/stores/Attachment";
+import { CompleteAttachment } from "./AttachmentTypes";
 
 export type TextContentPart = {
   type: "text";
@@ -51,7 +51,15 @@ type MessageCommonProps = {
   createdAt: Date;
 };
 
-export type ThreadRoundtrip = {
+/**
+ * @deprecated Use `ThreadStep` instead. This type will be removed in v0.6.
+ */
+export type ThreadRoundtrip = ThreadStep;
+
+export type ThreadStep = {
+  /**
+   * @deprecated This field will be removed in v0.6. Submit feedback if you need this functionality.
+   */
   logprobs?: LanguageModelV1LogProbs | undefined;
   usage?:
     | {
@@ -113,7 +121,7 @@ export type ThreadSystemMessage = MessageCommonProps & {
 export type ThreadUserMessage = MessageCommonProps & {
   role: "user";
   content: ThreadUserContentPart[];
-  attachments: readonly MessageAttachment[];
+  attachments: readonly CompleteAttachment[];
   // TODO metadata
 };
 
@@ -122,11 +130,15 @@ export type ThreadAssistantMessage = MessageCommonProps & {
   content: ThreadAssistantContentPart[];
   status: MessageStatus;
   /**
-   * @deprecated Use `metadata.roundtrips` instead.
+   * @deprecated Use `metadata.steps` instead.
    */
-  roundtrips?: ThreadRoundtrip[] | undefined;
+  roundtrips?: ThreadStep[] | undefined;
   metadata?: {
-    roundtrips?: ThreadRoundtrip[] | undefined;
+    /**
+     * @deprecated Use `steps` instead. This field will be removed in v0.6.
+     */
+    roundtrips?: ThreadStep[] | undefined;
+    steps?: ThreadStep[] | undefined;
     custom?: Record<string, unknown> | undefined;
   };
 };
@@ -134,13 +146,17 @@ export type ThreadAssistantMessage = MessageCommonProps & {
 export type AppendMessage = CoreMessage & {
   parentId: string | null;
   // TODO make required in the next major version
-  attachments?: readonly MessageAttachment[];
+  attachments?: readonly CompleteAttachment[] | undefined;
 };
 
-export type ThreadMessage =
-  | ThreadSystemMessage
-  | ThreadUserMessage
-  | ThreadAssistantMessage;
+type BaseThreadMessage = {
+  status?: ThreadAssistantMessage["status"];
+  metadata?: ThreadAssistantMessage["metadata"];
+  attachments?: ThreadUserMessage["attachments"];
+};
+
+export type ThreadMessage = BaseThreadMessage &
+  (ThreadSystemMessage | ThreadUserMessage | ThreadAssistantMessage);
 
 /** Core Message Types (without UI content parts) */
 

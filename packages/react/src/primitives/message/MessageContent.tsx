@@ -1,20 +1,18 @@
 "use client";
 
-import { type ComponentType, type FC, memo } from "react";
+import { type ComponentType, type FC, memo, useMemo } from "react";
+import { useContentPart, useThreadRuntime, useToolUIs } from "../../context";
 import {
-  useAssistantContext,
-  useContentPartContext,
-  useThreadContext,
-} from "../../context";
-import { useMessageContext } from "../../context/react/MessageContext";
-import {
-  ContentPartProvider,
-  EMPTY_CONTENT,
-} from "../../context/providers/ContentPartProvider";
+  useMessage,
+  useMessageRuntime,
+  useMessageStore,
+} from "../../context/react/MessageContext";
+import { ContentPartRuntimeProvider } from "../../context/providers/ContentPartRuntimeProvider";
 import { ContentPartPrimitiveText } from "../contentPart/ContentPartText";
 import { ContentPartPrimitiveImage } from "../contentPart/ContentPartImage";
 import { ContentPartPrimitiveDisplay } from "../contentPart/ContentPartDisplay";
 import type {
+  EmptyContentPartComponent,
   ImageContentPartComponent,
   TextContentPartComponent,
   ToolCallContentPartComponent,
@@ -22,25 +20,33 @@ import type {
   UIContentPartComponent,
 } from "../../types/ContentPartComponentTypes";
 import { ContentPartPrimitiveInProgress } from "../contentPart/ContentPartInProgress";
+import { EMPTY_CONTENT } from "../../api/MessageRuntime";
 
-export type MessagePrimitiveContentProps = {
-  components?:
-    | {
-        Empty?: TextContentPartComponent | undefined;
-        Text?: TextContentPartComponent | undefined;
-        Image?: ImageContentPartComponent | undefined;
-        UI?: UIContentPartComponent | undefined;
-        tools?:
-          | {
-              by_name?:
-                | Record<string, ToolCallContentPartComponent | undefined>
-                | undefined;
-              Fallback?: ComponentType<ToolCallContentPartProps> | undefined;
-            }
-          | undefined;
-      }
-    | undefined;
-};
+/**
+ * @deprecated Use `MessagePrimitive.Content.Props` instead. This will be removed in 0.6.
+ */
+export type MessagePrimitiveContentProps = MessagePrimitiveContent.Props;
+
+export namespace MessagePrimitiveContent {
+  export type Props = {
+    components?:
+      | {
+          Empty?: EmptyContentPartComponent | undefined;
+          Text?: TextContentPartComponent | undefined;
+          Image?: ImageContentPartComponent | undefined;
+          UI?: UIContentPartComponent | undefined;
+          tools?:
+            | {
+                by_name?:
+                  | Record<string, ToolCallContentPartComponent | undefined>
+                  | undefined;
+                Fallback?: ComponentType<ToolCallContentPartProps> | undefined;
+              }
+            | undefined;
+        }
+      | undefined;
+  };
+}
 
 const ToolUIDisplay = ({
   UI,
@@ -48,8 +54,7 @@ const ToolUIDisplay = ({
 }: {
   UI: ToolCallContentPartComponent | undefined;
 } & ToolCallContentPartProps) => {
-  const { useToolUIs } = useAssistantContext();
-  const Render = useToolUIs((s) => s.getToolUI(props.part.toolName)) ?? UI;
+  const Render = useToolUIs((s) => s.getToolUI(props.toolName)) ?? UI;
   if (!Render) return null;
   return <Render {...props} />;
 };
@@ -65,64 +70,59 @@ const defaultComponents = {
   ),
   Image: () => <ContentPartPrimitiveImage />,
   UI: () => <ContentPartPrimitiveDisplay />,
-} satisfies MessagePrimitiveContentProps["components"];
+} satisfies MessagePrimitiveContent.Props["components"];
 
 type MessageContentPartComponentProps = {
-  components: MessagePrimitiveContentProps["components"];
+  components: MessagePrimitiveContent.Props["components"];
 };
 
 const MessageContentPartComponent: FC<MessageContentPartComponentProps> = ({
   components: {
-    Empty = defaultComponents.Text,
     Text = defaultComponents.Text,
+    Empty,
     Image = defaultComponents.Image,
     UI = defaultComponents.UI,
     tools: { by_name = {}, Fallback = undefined } = {},
   } = {},
 }) => {
-  const { useThreadActions } = useThreadContext();
-  const { useMessage } = useMessageContext();
-  const addToolResult = useThreadActions((t) => t.addToolResult);
+  const messageStore = useMessageStore();
+  const threadRuntime = useThreadRuntime();
 
-  const { useContentPart } = useContentPartContext();
-  const { part, status } = useContentPart();
+  const part = useContentPart();
 
   const type = part.type;
   switch (type) {
     case "text":
-      if (status.type === "requires-action")
+      if (part.status.type === "requires-action")
         throw new Error("Encountered unexpected requires-action status");
-      if (part === EMPTY_CONTENT) return <Empty part={part} status={status} />;
+      if (part.part === EMPTY_CONTENT && !!Empty) {
+        return <Empty status={part.status} />;
+      }
 
-      return <Text part={part} status={status} />;
+      return <Text {...part} part={part} />;
 
     case "image":
-      if (status.type === "requires-action")
+      if (part.status.type === "requires-action")
         throw new Error("Encountered unexpected requires-action status");
       // eslint-disable-next-line jsx-a11y/alt-text
-      return <Image part={part} status={status} />;
+      return <Image {...part} part={part} />;
 
     case "ui":
-      if (status.type === "requires-action")
+      if (part.status.type === "requires-action")
         throw new Error("Encountered unexpected requires-action status");
-      return <UI part={part} status={status} />;
+      return <UI {...part} part={part} />;
 
     case "tool-call": {
       const Tool = by_name[part.toolName] || Fallback;
       const addResult = (result: any) =>
-        addToolResult({
-          messageId: useMessage.getState().message.id,
+        threadRuntime.addToolResult({
+          messageId: messageStore.getState().id,
           toolName: part.toolName,
           toolCallId: part.toolCallId,
           result,
         });
       return (
-        <ToolUIDisplay
-          UI={Tool}
-          part={part}
-          status={status}
-          addResult={addResult}
-        />
+        <ToolUIDisplay {...part} part={part} UI={Tool} addResult={addResult} />
       );
     }
     default:
@@ -133,17 +133,23 @@ const MessageContentPartComponent: FC<MessageContentPartComponentProps> = ({
 
 type MessageContentPartProps = {
   partIndex: number;
-  components: MessagePrimitiveContentProps["components"];
+  components: MessagePrimitiveContent.Props["components"];
 };
 
 const MessageContentPartImpl: FC<MessageContentPartProps> = ({
   partIndex,
   components,
 }) => {
+  const messageRuntime = useMessageRuntime();
+  const runtime = useMemo(
+    () => messageRuntime.getContentPartByIndex(partIndex),
+    [messageRuntime, partIndex],
+  );
+
   return (
-    <ContentPartProvider partIndex={partIndex}>
+    <ContentPartRuntimeProvider runtime={runtime}>
       <MessageContentPartComponent components={components} />
-    </ContentPartProvider>
+    </ContentPartRuntimeProvider>
   );
 };
 
@@ -157,12 +163,10 @@ const MessageContentPart = memo(
     prev.components?.tools === next.components?.tools,
 );
 
-export const MessagePrimitiveContent: FC<MessagePrimitiveContentProps> = ({
+export const MessagePrimitiveContent: FC<MessagePrimitiveContent.Props> = ({
   components,
 }) => {
-  const { useMessage } = useMessageContext();
-
-  const contentLength = useMessage((s) => s.message.content.length) || 1;
+  const contentLength = useMessage((s) => s.content.length) || 1;
 
   return Array.from({ length: contentLength }, (_, index) => (
     <MessageContentPart key={index} partIndex={index} components={components} />

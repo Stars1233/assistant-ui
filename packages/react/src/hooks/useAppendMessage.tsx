@@ -1,51 +1,27 @@
 import { useCallback } from "react";
-import { ThreadContextValue, useThreadContext } from "../context";
-import { AppendMessage } from "../types";
+import { useThreadViewportStore } from "../context";
+import {
+  useThreadComposerStore,
+  useThreadRuntime,
+} from "../context/react/ThreadContext";
+import { CreateAppendMessage } from "../api/ThreadRuntime";
 
-type CreateAppendMessage =
-  | string
-  | {
-      parentId?: string | null | undefined;
-      role?: AppendMessage["role"] | undefined;
-      content: AppendMessage["content"];
-      attachments?: AppendMessage["attachments"] | undefined;
-    };
-
-const toAppendMessage = (
-  useThreadMessages: ThreadContextValue["useThreadMessages"],
-  message: CreateAppendMessage,
-): AppendMessage => {
-  if (typeof message === "string") {
-    return {
-      parentId: useThreadMessages.getState().at(-1)?.id ?? null,
-      role: "user",
-      content: [{ type: "text", text: message }],
-      attachments: [],
-    };
-  }
-
-  return {
-    parentId:
-      message.parentId ?? useThreadMessages.getState().at(-1)?.id ?? null,
-    role: message.role ?? "user",
-    content: message.content,
-    attachments: message.attachments ?? [],
-  } as AppendMessage;
-};
-
+/**
+ * @deprecated Use `useThreadRuntime().append()` instead. This will be removed in 0.6.
+ */
 export const useAppendMessage = () => {
-  const { useThreadMessages, useThreadActions, useViewport, useComposer } =
-    useThreadContext();
+  const threadRuntime = useThreadRuntime();
+  const threadViewportStore = useThreadViewportStore();
+  const threadComposerStore = useThreadComposerStore();
 
   const append = useCallback(
     (message: CreateAppendMessage) => {
-      const appendMessage = toAppendMessage(useThreadMessages, message);
-      useThreadActions.getState().append(appendMessage);
+      threadRuntime.append(message);
 
-      useViewport.getState().scrollToBottom();
-      useComposer.getState().focus();
+      threadViewportStore.getState().scrollToBottom();
+      threadComposerStore.getState().focus();
     },
-    [useThreadMessages, useThreadActions, useViewport, useComposer],
+    [threadRuntime, threadViewportStore, threadComposerStore],
   );
 
   return append;

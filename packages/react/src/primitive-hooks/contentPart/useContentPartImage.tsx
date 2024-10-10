@@ -1,16 +1,16 @@
-import { useContentPartContext } from "../../context/react/ContentPartContext";
-import { ImageContentPartState } from "../../context/stores/ContentPart";
+import { ContentPartState } from "../../api/ContentPartRuntime";
+import { useContentPart } from "../../context/react/ContentPartContext";
+import { ImageContentPart } from "../../types";
 
 export const useContentPartImage = () => {
-  const { useContentPart } = useContentPartContext();
-
   const image = useContentPart((c) => {
-    if (c.part.type !== "image")
+    if (c.type !== "image")
       throw new Error(
         "ContentPartImage can only be used inside image content parts.",
       );
 
-    return c as ImageContentPartState;
+    return c as ContentPartState &
+      ImageContentPart & { part: ImageContentPart };
   });
 
   return image;

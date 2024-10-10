@@ -1,5 +1,7 @@
-export type { AssistantRuntime } from "./AssistantRuntime";
-export type { ThreadRuntime } from "./ThreadRuntime";
-export type { ReactThreadRuntime } from "./ReactThreadRuntime";
+export type {
+  AddToolResultOptions,
+  SubmitFeedbackOptions,
+  ThreadSuggestion,
+} from "./ThreadRuntimeCore";
 
 export { subscribeToMainThread } from "./subscribeToMainThread";

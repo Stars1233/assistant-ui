@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAssistantContext } from "../context/react/AssistantContext";
+import { useAssistantRuntime } from "../context";
 
 export const useAssistantInstructions = (instruction: string) => {
-  const { useModelConfig } = useAssistantContext();
-  const registerModelConfigProvider = useModelConfig(
-    (s) => s.registerModelConfigProvider,
-  );
+  const assistantRuntime = useAssistantRuntime();
   useEffect(() => {
     const config = {
       system: instruction,
     };
-    return registerModelConfigProvider({ getModelConfig: () => config });
-  }, [registerModelConfigProvider, instruction]);
+    return assistantRuntime.registerModelConfigProvider({
+      getModelConfig: () => config,
+    });
+  }, [assistantRuntime, instruction]);
 };

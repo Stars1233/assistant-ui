@@ -5,8 +5,12 @@ import {
   ComposerPrimitive,
   MessagePrimitive,
   ThreadPrimitive,
-  useMessageContext,
-  useThreadContext,
+  useComposer,
+  useComposerRuntime,
+  useMessage,
+  useMessageRuntime,
+  useThread,
+  useThreadRuntime,
 } from "@assistant-ui/react";
 import { useState, type FC, type KeyboardEvent, type MouseEvent } from "react";
 import {
@@ -30,10 +34,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "../dropdown-menu";
-import {
-  useGetPlaygroundRuntime,
-  usePlaygroundRuntime,
-} from "../../../lib/usePlaygroundRuntime";
+import { usePlaygroundRuntime } from "../../../lib/usePlaygroundRuntime";
 import { ToolUI } from "./tool-ui";
 import { Text } from "./text";
 import {
@@ -101,21 +102,22 @@ const RoleSelect: FC<RoleSelectProps> = ({ role, setRole, children }) => {
 
 const Composer: FC = () => {
   const [role, setRole] = useState<"user" | "assistant" | "system">("user");
-  const { useThread, useThreadActions, useComposer } = useThreadContext();
 
   const isRunning = useThread((t) => t.isRunning);
   const hasText = useComposer((c) => c.text.length > 0);
 
+  const threadRuntime = useThreadRuntime();
+  const composerRuntime = useComposerRuntime();
+
   const performAdd = () => {
-    const composer = useComposer.getState();
-    composer.send();
+    composerRuntime.send();
 
     setRole("user");
   };
 
   const performSubmit = () => {
     performAdd();
-    useThreadActions.getState().startRun(null);
+    threadRuntime.startRun(null);
   };
 
   const handleAdd = (e: MouseEvent) => {
@@ -180,8 +182,8 @@ const Composer: FC = () => {
 };
 
 const AddToolCallButton = () => {
+  const messageRuntime = useMessageRuntime();
   const runtime = usePlaygroundRuntime();
-  const { useMessage } = useMessageContext();
   const toolNames = runtime.useModelConfig((c) => Object.keys(c.tools ?? {}));
   return (
     <DropdownMenu>
@@ -201,7 +203,7 @@ const AddToolCallButton = () => {
             className="gap-2"
             onClick={() => {
               runtime.addTool({
-                messageId: useMessage.getState().message.id,
+                messageId: messageRuntime.getState().id,
                 toolName,
               });
             }}
@@ -216,15 +218,15 @@ const AddToolCallButton = () => {
 };
 
 const AddImageButton = () => {
-  const getPlaygroundRuntime = useGetPlaygroundRuntime();
-  const { useMessage } = useMessageContext();
+  const runtime = usePlaygroundRuntime();
+  const messageRuntime = useMessageRuntime();
 
   const [isOpen, setIsOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const handleAddImage = () => {
-    getPlaygroundRuntime().addImage({
+    runtime.addImage({
       image: new URL(imageUrl).href,
-      messageId: useMessage.getState().message.id,
+      messageId: messageRuntime.getState().id,
     });
     setIsOpen(false);
   };
@@ -258,20 +260,18 @@ const AddImageButton = () => {
 };
 
 const Message: FC = () => {
-  const getPlaygroundRuntime = useGetPlaygroundRuntime();
-  const { useMessage } = useMessageContext();
-  const role = useMessage((m) => m.message.role);
-  const status = useMessage((m) =>
-    m.message.role === "assistant" ? m.message.status : null,
-  );
+  const runtime = usePlaygroundRuntime();
+  const messageRuntime = useMessageRuntime();
+  const role = useMessage((m) => m.role);
+  const status = useMessage((m) => (m.role === "assistant" ? m.status : null));
 
   const handleDelete = () => {
-    getPlaygroundRuntime().deleteMessage(useMessage.getState().message.id);
+    runtime.deleteMessage(messageRuntime.getState().id);
   };
 
   const setRole = (role: "system" | "assistant" | "user") => {
-    getPlaygroundRuntime().setRole({
-      messageId: useMessage.getState().message.id,
+    runtime.setRole({
+      messageId: messageRuntime.getState().id,
       role,
     });
   };
