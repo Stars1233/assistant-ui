@@ -1,5 +1,12 @@
 # @assistant-ui/react-langgraph
 
+## 0.5.7
+
+### Patch Changes
+
+- 39261db: fix: langchain-community bedrock anthropic support
+- 1556c03: feat: Add support for event handlers for metadata, info, error, and custom events to useLangGraphMessages and useLangGraphMessages
+
 ## 0.5.6
 
 ### Patch Changes
